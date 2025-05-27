@@ -19,14 +19,17 @@ public class Personagem {
         switch (classe) {
             case Guerreiro:
                 setNome("Guerreiro");
+                setAparencia('G');
                 setAtributos(15, 10, 1);
             break;
             case Arqueiro:
                 setNome("Arqueiro");
+                setAparencia('A');
                 setAtributos(8, 5, 5);
             break;
             case Mago:
                 setNome("Mago");
+                setAparencia('M');
                 setAtributos(10, 7, 3);
             break;
             default:
@@ -114,8 +117,11 @@ public class Personagem {
         return this.x == x && this.y == y;
     }
     //#endregion
+    public int distanciaEntre(Personagem personagem){
+        return Math.max(Math.abs(y - personagem.y), Math.abs(x - personagem.x));
+    }
     public void printarInformacoes(){
-        System.out.println(nome + " (" + aparencia + "): " + pontosDeVida + "/100");
+        System.out.println(nome + " (" + aparencia + "): " + pontosDeVida + "/100 PV");
         
     }
 }
