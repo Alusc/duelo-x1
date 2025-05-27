@@ -73,8 +73,10 @@ public class Personagem {
             this.alcanceDeAtaque = alcanceDeAtaque;
     }
     public void setPosicao(int x, int y){
-        this.x = x;
-        this.y = y;
+        if (this.x != x)
+            this.x = x;
+        if (this.y != y)
+            this.y = y;
     }
     //#endregion
     //#region getters
@@ -113,7 +115,7 @@ public class Personagem {
     public void mover(int x, int y){
         setPosicao(x, y);
     }
-    public boolean checarPosicao(int x, int y){
+    public boolean estaNaPosicao(int x, int y){
         return this.x == x && this.y == y;
     }
     //#endregion

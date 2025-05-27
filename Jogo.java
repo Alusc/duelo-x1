@@ -4,7 +4,10 @@ import Personagem.Personagem;
 
 
 public class Jogo {
+    private static final int larguraDoTabuleiro = 10;
+    private static final int alturaDoTabuleiro = 10;
     //#region main
+
     public static Scanner scanner = new Scanner(System.in);
     public static void limparConsole(){
         System.out.print("\033[H\033[2J");
@@ -44,9 +47,9 @@ public class Jogo {
         limparConsole();
         personagem1 = new Personagem(Personagem.Classe.values()[classe]);
         System.out.println("Defina um nome para o personagem do Jogador 1:");
-        scanner.nextLine(); //Apaga a quebra de linha
-        String nome = scanner.nextLine();
-        personagem1.setNome(nome);
+        scanner.nextLine(); //Passa pela quebra de linha
+        String nome = scanner.nextLine().trim();
+        personagem1.setNome(personagem1.getNome() + " " + nome);
         if (!isMultiplayer()){
             Random r = new Random();
             //A I.A. vai escolher uma classe aleatória
@@ -75,9 +78,9 @@ public class Jogo {
                 System.out.println("Entrada inválida. Por favor, digite novemente\n| 0: Mover | 1: Atacar | 2: Defender | 3: Ativar poder especial | 4: Sair |");
                 entrada = scanner.nextInt();
             }
+            realizarAcao(entrada);
             proximoTurno();
-        }
-        while (entrada != 4 && !jogoEncerrado);
+        } while (entrada != 4 && !jogoEncerrado);
     }
     //#endregion
 
@@ -98,6 +101,68 @@ public class Jogo {
     public static void encerrarJogo(){
         jogoEncerrado = true;
     }
+    public static void realizarAcao(int acao){
+        switch (acao) {
+            case 0:
+                realizarMovimento(personagem1);
+            break;
+        
+            default:
+            break;
+        }
+    }
+    public static void realizarMovimento(Personagem personagem){
+        System.out.println("Para onde deseja mover?\n| Cima(C) | Baixo(B) | Esquerda(E) | Direita(D) |");
+        scanner.nextLine();
+        
+        int destinoX;
+        int destinoY;
+        
+        boolean charactereInvalido;
+
+        do {
+            char where = scanner.nextLine().toLowerCase().charAt(0);    
+            destinoX = personagem.getX();
+            destinoY = personagem.getY();
+            charactereInvalido = false;
+
+            switch (where) {
+                case 'c':
+                    destinoY--;
+                break;
+                case 'b':
+                    destinoY++;
+                break;
+                case 'e':
+                    destinoX--;
+                break;
+                case 'd':
+                    destinoX++;
+                break;
+                default:
+                    System.out.println("Caractere inválido");
+                    charactereInvalido = true;
+                break;
+            }
+        } while (charactereInvalido || !validarMovimento(destinoX, destinoY, personagem));
+
+        personagem.mover(destinoX, destinoY);
+    }
+    public static boolean validarMovimento(int x, int y, Personagem personagem){
+        if ((x < 0 || x >= larguraDoTabuleiro) || (y < 0 || y >= alturaDoTabuleiro)) {
+            System.out.println("Destino fora do tabuleiro");
+            return false;
+        }
+        if (personagem == personagem1) {
+            System.out.println("Posições dos personagens coincidem");
+            return !personagem2.estaNaPosicao(x, y);
+        }
+        if (personagem == personagem2) {
+            System.out.println("Posições dos personagens coincidem");
+            return !personagem1.estaNaPosicao(x, y);
+        }
+        return true; 
+    }
     //#endregion
     //#region multiplayer
     private static boolean multiplayer = false; // Variável que define a quantidade de players
@@ -113,23 +178,23 @@ public class Jogo {
     private static Personagem personagem2;
     public static void aleatorizarPosicoes(){
         Random a = new Random();
-        personagem1.setPosicao(a.nextInt(9), a.nextInt(9));
-        personagem2.setPosicao(a.nextInt(9), a.nextInt(9));
+        personagem1.setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
+        personagem2.setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
     }
     //#endregion
     //#region prints na tela
     public static void printarTabuleiro(){
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 11; j++) {
+        for (int i = 0; i < alturaDoTabuleiro + 1; i++) {
+            for (int j = 0; j < larguraDoTabuleiro + 1; j++) {
                 
                 if (i == 0)
                     System.out.print(j == 0 ? " " : j - 1);
                 else if (j == 0)
                     System.out.print(i - 1);
-                else if (personagem1.checarPosicao(j - 1, i - 1)){
+                else if (personagem1.estaNaPosicao(j - 1, i - 1)){
                     System.out.print(personagem1.getAparencia());
                 }
-                else if (personagem2.checarPosicao(j - 1, i - 1)){
+                else if (personagem2.estaNaPosicao(j - 1, i - 1)){
                     System.out.print(personagem2.getAparencia());
                 }
                 else {
