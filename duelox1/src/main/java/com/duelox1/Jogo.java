@@ -14,20 +14,17 @@ public class Jogo {
     //#region main
 
     public static Scanner scanner = new Scanner(System.in);
-    public static void limparConsole(){
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
+    
     public static void main(String[] args) {
         
         String jogarNovamente;
         do {
-            setTurno(1);
+            reiniciarJogo();
             limparConsole();
             menuPrincipal();
             loopDeJogo();
             System.out.println("Deseja jogar novamente? (Digite \"s\" para confirmar)");
-            // scanner.nextLine();
+            //scanner.nextLine();
             jogarNovamente = scanner.nextLine().toLowerCase();
             
         } while (!jogarNovamente.isEmpty() && jogarNovamente.charAt(0) == 's');
@@ -63,53 +60,59 @@ public class Jogo {
     public static void loopDeJogo(){
         
         aleatorizarPosicoes();
-        int entrada;
         do {
-            limparConsole();
-            printarTabuleiro();
-            printarTurno();
-            printarPersonagens();
-            // System.out.println("É a vez do Jogador 1");
-            System.out.println("Qual ação deseja fazer?\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
-            entrada = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            while (entrada < 1 || entrada > 5) {
-                System.out.println("Entrada inválida. Por favor, digite novemente\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
-                scanner.nextLine();
-                entrada = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            atualizarEstadoDoJogo();
+            lidarComEntradaDeAcao(0);
+            if (isMultiplayer()){
+                atualizarEstadoDoJogo();
+                lidarComEntradaDeAcao(1);
             }
-            realizarAcao(personagens[0], entrada);
-            // if (isMultiplayer()){
-            //     realizarAcao(personagens[1], entrada);
-            // }
             proximoTurno();
-        } while (entrada != 5 && !jogoEncerrado);
+        } while (entradaDeAcao != 5 && !jogoEncerrado);
     }
     //#endregion
 
     //#region turno
     private static int turno = 1; // Variável para controlar o turno do jogo
-    private static void setTurno(int novoTurno) {
-        turno = novoTurno;
-    }
-    public static int getTurno() {
-        return turno;
-    }
     public static void proximoTurno(){
-        setTurno(turno + 1);
+        turno++;
     }
     //#endregion
     //#region estado de jogo
     private static boolean jogoEncerrado = false;
+    public static boolean jogoEstaEncerrado(){
+        return jogoEncerrado;
+    }
     public static void encerrarJogo(){
         if (!jogoEncerrado)
             jogoEncerrado = true;
     }
     public static void reiniciarJogo(){
-        if (jogoEncerrado)
+        if (jogoEncerrado) {
             jogoEncerrado = false;
+            turno = 1;
+        }
     }
     //#endregion
     //#region ações
+    private static int entradaDeAcao;
+    public static void lidarComEntradaDeAcao(int n){
+        //Esse método ser para lidar com entradas de ação somente de players humanos
+
+        if (jogoEstaEncerrado())
+            return;
+
+        System.out.println("---------------------\nÉ a vez do Jogador " + (n + 1) + "\n---------------------");
+        System.out.println("Qual ação deseja fazer?\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
+        entradaDeAcao = scanner.hasNextInt() ? scanner.nextInt() : 0;
+        while (entradaDeAcao < 1 || entradaDeAcao > 5) {
+            System.out.println("Entrada inválida. Por favor, digite novemente\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
+            scanner.nextLine();
+            entradaDeAcao = scanner.hasNextInt() ? scanner.nextInt() : 0;
+        }
+        realizarAcao(personagens[n], entradaDeAcao);
+    }
+
     public static void realizarAcao(Personagem personagem, int acao){
         switch (acao) {
             case 1:
@@ -121,11 +124,15 @@ public class Jogo {
             case 3:
                 realizarDefesa(personagem);
             break;
+            case 5:
+                System.out.println("Jogo Encerrado");
+                scanner.nextLine();
+                encerrarJogo();
+            return;
             default:
             break;
         }
         System.out.println("Pressione enter para continuar...");
-        // scanner.nextLine();
         String entrada = scanner.nextLine();
     }
     public static void realizarMovimento(Personagem personagem){
@@ -212,7 +219,7 @@ public class Jogo {
     public static void criarPersonagem(int n) {
         //Esse método serve para quando um player humano vai criar um personagem
 
-        System.out.println("Selecione a classe do Jogador "+ (n + 1) +":\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
+        System.out.println("Selecione a classe do Jogador " + (n + 1) + ":\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
         int classe;
 
         //Validar a entrada do usuário
@@ -250,6 +257,17 @@ public class Jogo {
     }
     //#endregion
     //#region prints na tela
+    public static void limparConsole(){
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+    public static void atualizarEstadoDoJogo(){
+        limparConsole();
+        printarTabuleiro();
+        printarTurno();
+        printarInformacoesDosPersonagens();
+    }
+
     public static void printarTabuleiro(){
         for (int i = 0; i < alturaDoTabuleiro + 1; i++) {
             for (int j = 0; j < larguraDoTabuleiro + 1; j++) {
@@ -275,7 +293,7 @@ public class Jogo {
     public static void printarTurno(){
         System.out.println("Turno: " + turno);
     }
-    public static void printarPersonagens(){
+    public static void printarInformacoesDosPersonagens(){
         personagens[0].printarInformacoes();
         personagens[1].printarInformacoes();
     }

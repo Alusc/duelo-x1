@@ -2,6 +2,7 @@ package duelox1.src.main.java.com.duelox1.Personagem;
 
 public class Personagem {
     private String nome = "Ninguém";
+    private Classe classe;
     private char aparencia = 'A';
     private int forcaDeAtaque = 1;
     private int forcaDeDefesaPadrao = 1;
@@ -17,6 +18,7 @@ public class Personagem {
     
     //#region construtor
     public Personagem(Classe classe){
+        this.classe = classe;
         switch (classe) {
             case Guerreiro:
                 setNome("Guerreiro");
@@ -117,28 +119,31 @@ public class Personagem {
     public int getY() {
         return y;
     }
+    public boolean isMorto(){
+        return morto;
+    }
     //#endregion
     //#region ações do personagem
     public void atacar(Personagem personagem){
-        if (distanciaEntre(personagem) <= getAlcanceDeAtaque()) {
-            personagem.tomarDano(getForcaDeAtaque());
+        if (distanciaEntre(personagem) <= alcanceDeAtaque) {
+            personagem.tomarDano(forcaDeAtaque);
         }
         else
             System.out.println("O ataque falhou devido à distância do inimigo");
     }
     public void defender(){
-        System.out.println("A defesa do personagem foi restaurada para " + getForcaDeDefesaPadrao());
-        setForcaDeDefesa(getForcaDeDefesaPadrao());
+        System.out.println("A defesa do " + nome + " foi restaurada para " + forcaDeDefesaPadrao);
+        setForcaDeDefesa(forcaDeDefesaPadrao);
     }
     public void mover(int x, int y){
-        System.out.println("O personagem se moverá para (" + x + ", " + y + ")");
+        System.out.println("O " + nome + " se moverá para (" + x + ", " + y + ")");
         setPosicao(x, y);
     }
     public void tomarDano(int ataque){
         int danoResultante = Math.max(0, ataque - forcaDeDefesa);
-        System.out.println("O ataque causou " + danoResultante + " de dano no inimigo");
-        setForcaDeDefesa(getForcaDeDefesa() - ataque);
-        setPontosDeVida(getPontosDeVida() - danoResultante);
+        System.out.println("O ataque causou " + danoResultante + " de dano no " + nome);
+        setForcaDeDefesa(forcaDeDefesa - ataque);
+        setPontosDeVida(pontosDeVida - danoResultante);
     }
     //#endregion
     //#region métodos úteis
@@ -149,7 +154,7 @@ public class Personagem {
         return Math.max(Math.abs(y - personagem.y), Math.abs(x - personagem.x));
     }
     public void printarInformacoes(){
-        System.out.println(nome + " (" + aparencia + "): " + pontosDeVida + "/100 PV");
+        System.out.println(nome + " (" + aparencia + "): " + pontosDeVida + "/100 PV | " + forcaDeDefesa + "/" + forcaDeDefesaPadrao + " FD");
         
     }
     //#endregion
