@@ -1,6 +1,9 @@
+package duelox1.src.main.java.com.duelox1;
 import java.util.Scanner;
+
+import duelox1.src.main.java.com.duelox1.Personagem.Personagem;
+
 import java.util.Random;
-import Personagem.Personagem;
 
 
 public class Jogo {
@@ -15,20 +18,19 @@ public class Jogo {
     }
     public static void main(String[] args) {
         
-        String entrada;
+        String jogarNovamente;
         do {
-
             setTurno(1);
             limparConsole();
             menuPrincipal();
             loopDeJogo();
-            System.out.println("Deseja jogar novamente?\n| Sim | Não |");
+            System.out.println("Deseja jogar novamente? (Digite \"s\" para confirmar)");
             scanner.nextLine();
-            entrada = scanner.nextLine().toLowerCase();
+            jogarNovamente = scanner.nextLine().toLowerCase();
             
-        } while (entrada.equals("sim"));
+        } while (!jogarNovamente.isEmpty() && jogarNovamente.charAt(0) == 's');
     }
-    //#region loops
+    //#region jogo
     public static void menuPrincipal(){
         
         System.out.println("Bem vindo ao Duelo X1");
@@ -36,16 +38,31 @@ public class Jogo {
        
         setMultiplayer(scanner.nextInt() != 0);
         limparConsole();
-        System.out.println("Selecione a classe do Jogador 1:\n| 0: Guerreiro | 1: Arqueiro | 2: Mago |");
-        int classe = scanner.nextInt();
+        System.out.println("Selecione a classe do Jogador 1:\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
+        int classe;
+
+        //Validar a entrada do usuário
+        if (scanner.hasNextInt())
+            classe = scanner.nextInt();
+        else
+            classe = -1;
+        
+        
         int numeroDeClasses = Personagem.Classe.values().length;
 
-        while (classe < 0 || classe >= numeroDeClasses) {
-            System.out.println("Classe selecionada invalida, digite novemente:\n| 0: Guerreiro | 1: Arqueiro | 2: Mago |");
-            classe = scanner.nextInt();
+        while (classe < 1 || classe > numeroDeClasses) {
+            //Validar a classe selecionada
+            System.out.println("Classe selecionada inválida, digite novemente:\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
+            if (scanner.hasNextInt())
+                classe = scanner.nextInt();
+            else {
+                scanner.nextLine(); // Limpa a entrada inválida
+                classe = -1;
+            }
         }
+
         limparConsole();
-        personagem1 = new Personagem(Personagem.Classe.values()[classe]);
+        personagem1 = new Personagem(Personagem.Classe.values()[classe - 1]);
         System.out.println("Defina um nome para o personagem do Jogador 1:");
         scanner.nextLine(); //Passa pela quebra de linha
         String nome = scanner.nextLine().trim();
@@ -55,6 +72,7 @@ public class Jogo {
             //A I.A. vai escolher uma classe aleatória
             personagem2 = new Personagem(Personagem.Classe.values()[r.nextInt(numeroDeClasses)]);
         }
+
         if (personagem2.getAparencia() == personagem1.getAparencia()){
             //Isso evita que os personagens tenham a mesma aparência
             personagem2.setAparencia((char)(personagem2.getAparencia() + 1));
@@ -72,15 +90,21 @@ public class Jogo {
             printarTurno();
             printarPersonagens();
             
-            System.out.println("Qual ação deseja fazer?\n| 0: Mover | 1: Atacar | 2: Defender | 3: Ativar poder especial | 4: Sair |");
+            System.out.println("Qual ação deseja fazer?\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
             entrada = scanner.nextInt();
-            while (entrada < 0 || entrada > 4) {
-                System.out.println("Entrada inválida. Por favor, digite novemente\n| 0: Mover | 1: Atacar | 2: Defender | 3: Ativar poder especial | 4: Sair |");
-                entrada = scanner.nextInt();
+            while (entrada < 1 || entrada > 5) {
+                System.out.println("Entrada inválida. Por favor, digite novemente\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
+                if (scanner.hasNextInt())
+                    entrada = scanner.nextInt();
+                else 
+                    entrada = 0;
             }
-            realizarAcao(entrada);
+            realizarAcao(personagem1, entrada);
+            if (isMultiplayer()){
+                realizarAcao(personagem2, entrada);
+            }
             proximoTurno();
-        } while (entrada != 4 && !jogoEncerrado);
+        } while (entrada != 5 && !jogoEncerrado);
     }
     //#endregion
 
@@ -101,10 +125,12 @@ public class Jogo {
     public static void encerrarJogo(){
         jogoEncerrado = true;
     }
-    public static void realizarAcao(int acao){
+    //#endregion
+    //#region ações
+    public static void realizarAcao(Personagem personagem, int acao){
         switch (acao) {
-            case 0:
-                realizarMovimento(personagem1);
+            case 1:
+                realizarMovimento(personagem);
             break;
         
             default:
