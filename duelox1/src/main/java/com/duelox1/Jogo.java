@@ -9,6 +9,7 @@ import java.util.Random;
 public class Jogo {
     private static final int larguraDoTabuleiro = 10;
     private static final int alturaDoTabuleiro = 10;
+    private static int numeroDeClasses = Personagem.Classe.values().length;
     //#region main
 
     public static Scanner scanner = new Scanner(System.in);
@@ -38,44 +39,22 @@ public class Jogo {
        
         setMultiplayer(scanner.nextInt() != 0);
         limparConsole();
-        System.out.println("Selecione a classe do Jogador 1:\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
-        int classe;
-
-        //Validar a entrada do usuário
-        if (scanner.hasNextInt())
-            classe = scanner.nextInt();
-        else
-            classe = -1;
         
-        
-        int numeroDeClasses = Personagem.Classe.values().length;
-
-        while (classe < 1 || classe > numeroDeClasses) {
-            //Validar a classe selecionada
-            System.out.println("Classe selecionada inválida, digite novemente:\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
-            if (scanner.hasNextInt())
-                classe = scanner.nextInt();
-            else {
-                scanner.nextLine(); // Limpa a entrada inválida
-                classe = -1;
-            }
-        }
-
-        limparConsole();
-        personagem1 = new Personagem(Personagem.Classe.values()[classe - 1]);
-        System.out.println("Defina um nome para o personagem do Jogador 1:");
-        scanner.nextLine(); //Passa pela quebra de linha
-        String nome = scanner.nextLine().trim();
-        personagem1.setNome(personagem1.getNome() + " " + nome);
+        criarPersonagem(0);
         if (!isMultiplayer()){
             Random r = new Random();
             //A I.A. vai escolher uma classe aleatória
-            personagem2 = new Personagem(Personagem.Classe.values()[r.nextInt(numeroDeClasses)]);
+            personagens[1] = new Personagem(Personagem.Classe.values()[r.nextInt(numeroDeClasses)]);
         }
+        else {
+            limparConsole();
+            criarPersonagem(1);
+        }
+        
 
-        if (personagem2.getAparencia() == personagem1.getAparencia()){
+        if (personagens[1].getAparencia() == personagens[0].getAparencia()){
             //Isso evita que os personagens tenham a mesma aparência
-            personagem2.setAparencia((char)(personagem2.getAparencia() + 1));
+            personagens[1].setAparencia((char)(personagens[1].getAparencia() + 1));
         }
         
     }
@@ -89,20 +68,18 @@ public class Jogo {
             printarTabuleiro();
             printarTurno();
             printarPersonagens();
-            
+            // System.out.println("É a vez do Jogador 1");
             System.out.println("Qual ação deseja fazer?\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
-            entrada = scanner.nextInt();
+            entrada = scanner.hasNextInt() ? scanner.nextInt() : 0;
             while (entrada < 1 || entrada > 5) {
                 System.out.println("Entrada inválida. Por favor, digite novemente\n| 1: Mover | 2: Atacar | 3: Defender | 4: Ativar poder especial | 5: Sair |");
-                if (scanner.hasNextInt())
-                    entrada = scanner.nextInt();
-                else 
-                    entrada = 0;
+                scanner.nextLine();
+                entrada = scanner.hasNextInt() ? scanner.nextInt() : 0;
             }
-            realizarAcao(personagem1, entrada);
-            if (isMultiplayer()){
-                realizarAcao(personagem2, entrada);
-            }
+            realizarAcao(personagens[0], entrada);
+            // if (isMultiplayer()){
+            //     realizarAcao(personagens[1], entrada);
+            // }
             proximoTurno();
         } while (entrada != 5 && !jogoEncerrado);
     }
@@ -123,7 +100,12 @@ public class Jogo {
     //#region estado de jogo
     private static boolean jogoEncerrado = false;
     public static void encerrarJogo(){
-        jogoEncerrado = true;
+        if (!jogoEncerrado)
+            jogoEncerrado = true;
+    }
+    public static void reiniciarJogo(){
+        if (jogoEncerrado)
+            jogoEncerrado = false;
     }
     //#endregion
     //#region ações
@@ -138,7 +120,7 @@ public class Jogo {
         }
     }
     public static void realizarMovimento(Personagem personagem){
-        System.out.println("Para onde deseja mover?\n| Cima(C) | Baixo(B) | Esquerda(E) | Direita(D) |");
+        System.out.println("Para onde deseja mover?\n| Cima(W) | Baixo(S) | Esquerda(A) | Direita(D) |");
         scanner.nextLine();
         
         int destinoX;
@@ -147,19 +129,20 @@ public class Jogo {
         boolean charactereInvalido;
 
         do {
-            char where = scanner.nextLine().toLowerCase().charAt(0);    
+            String entrada = scanner.nextLine().toLowerCase();
+            char where = entrada.isEmpty() ? '\0': entrada.charAt(0);
             destinoX = personagem.getX();
             destinoY = personagem.getY();
             charactereInvalido = false;
 
             switch (where) {
-                case 'c':
+                case 'w':
                     destinoY--;
                 break;
-                case 'b':
+                case 's':
                     destinoY++;
                 break;
-                case 'e':
+                case 'a':
                     destinoX--;
                 break;
                 case 'd':
@@ -175,23 +158,19 @@ public class Jogo {
         personagem.mover(destinoX, destinoY);
     }
     public static boolean validarMovimento(int x, int y, Personagem personagem){
-        if ((x < 0 || x >= larguraDoTabuleiro) || (y < 0 || y >= alturaDoTabuleiro)) {
+        if (x < 0 || x >= larguraDoTabuleiro || y < 0 || y >= alturaDoTabuleiro) {
             System.out.println("Destino fora do tabuleiro");
             return false;
         }
-        if (personagem == personagem1) {
+        if (personagens[0].estaNaPosicao(x, y) || personagens[1].estaNaPosicao(x, y)) {
             System.out.println("Posições dos personagens coincidem");
-            return !personagem2.estaNaPosicao(x, y);
-        }
-        if (personagem == personagem2) {
-            System.out.println("Posições dos personagens coincidem");
-            return !personagem1.estaNaPosicao(x, y);
+            return false;
         }
         return true; 
     }
     //#endregion
     //#region multiplayer
-    private static boolean multiplayer = false; // Variável que define a quantidade de players
+    private static boolean multiplayer = false; // Variável que define se o jogo vai ter 2 players
     public static void setMultiplayer(boolean value){
         multiplayer = value;
     }
@@ -200,12 +179,53 @@ public class Jogo {
     }
     //#endregion 
     //#region personagens
-    private static Personagem personagem1;
-    private static Personagem personagem2;
+    private static Personagem[] personagens = new Personagem[2];
+
+    // public static void anularPersonagens(){
+    //     for (Personagem personagem: personagens){
+    //         if (personagem != null)
+    //             personagem = null;
+    //     }
+    // }
+
+    public static void criarPersonagem(int n) {
+        //Esse método serve para quando um player humano vai criar um personagem
+
+        System.out.println("Selecione a classe do Jogador "+ (n + 1) +":\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
+        int classe;
+
+        //Validar a entrada do usuário
+        if (scanner.hasNextInt())
+            classe = scanner.nextInt();
+        else
+            classe = -1;
+        
+        
+        while (classe < 1 || classe > numeroDeClasses) {
+            //Validar a classe selecionada
+            System.out.println("Classe selecionada para o Jogador " + (n + 1) + " inválida, digite novemente:\n| 1: Guerreiro | 2: Arqueiro | 3: Mago |");
+            if (scanner.hasNextInt())
+                classe = scanner.nextInt();
+            else {
+                scanner.nextLine(); // Limpa a entrada inválida
+                classe = -1;
+            }
+        }
+
+        limparConsole();
+        
+        System.out.println("Defina um nome para o personagem do Jogador " + (n + 1) + ":");
+        scanner.nextLine(); //Passa pela quebra de linha
+        String nome = scanner.nextLine().trim();
+        personagens[n] = new Personagem(Personagem.Classe.values()[classe - 1]);
+        personagens[n].adicionarNome(nome);
+       
+    }
+    
     public static void aleatorizarPosicoes(){
         Random a = new Random();
-        personagem1.setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
-        personagem2.setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
+        personagens[0].setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
+        personagens[1].setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
     }
     //#endregion
     //#region prints na tela
@@ -217,11 +237,11 @@ public class Jogo {
                     System.out.print(j == 0 ? " " : j - 1);
                 else if (j == 0)
                     System.out.print(i - 1);
-                else if (personagem1.estaNaPosicao(j - 1, i - 1)){
-                    System.out.print(personagem1.getAparencia());
+                else if (personagens[0].estaNaPosicao(j - 1, i - 1)){
+                    System.out.print(personagens[0].getAparencia());
                 }
-                else if (personagem2.estaNaPosicao(j - 1, i - 1)){
-                    System.out.print(personagem2.getAparencia());
+                else if (personagens[1].estaNaPosicao(j - 1, i - 1)){
+                    System.out.print(personagens[1].getAparencia());
                 }
                 else {
                     System.out.print('.');
@@ -235,8 +255,8 @@ public class Jogo {
         System.out.println("Turno: " + turno);
     }
     public static void printarPersonagens(){
-        personagem1.printarInformacoes();
-        personagem2.printarInformacoes();
+        personagens[0].printarInformacoes();
+        personagens[1].printarInformacoes();
     }
     
     //#endregion

@@ -49,6 +49,10 @@ public class Personagem {
         if (!nome.isEmpty())
             this.nome = nome;
     }
+    public void adicionarNome(String nome){
+        if (!nome.isEmpty())
+            this.nome += " " + nome;
+    }
     public void setAparencia(char aparencia) {
         if (aparencia != '\0' && aparencia != ' ')
             this.aparencia = aparencia;
