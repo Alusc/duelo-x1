@@ -8,6 +8,7 @@ public class Personagem {
     private int forcaDeDefesa = 1;
     private int alcanceDeAtaque = 1;
     private int pontosDeVida = 100;
+    private boolean morto = false;
 
     public static enum Classe {Guerreiro, Arqueiro, Mago};
 
@@ -41,7 +42,7 @@ public class Personagem {
 
     public void setAtributos(int forcaDeAtaque, int forcaDeDefesaPadrao, int alcanceDeAtaque){
         setForcaDeAtaque(forcaDeAtaque);
-        setForcaDeDefesaPadrao(forcaDeDefesa);
+        setForcaDeDefesaPadrao(forcaDeDefesaPadrao);
         setAlcanceDeAtaque(alcanceDeAtaque);
     }
 
@@ -69,12 +70,17 @@ public class Personagem {
         }
     }
     public void setForcaDeDefesa(int forcaDeDefesa){
-        if (forcaDeDefesa > 0)
-            this.forcaDeDefesa = forcaDeDefesa;
+            this.forcaDeDefesa = Math.max(0, forcaDeDefesa);
     }
     public void setAlcanceDeAtaque(int alcanceDeAtaque){
         if (alcanceDeAtaque > 0)
             this.alcanceDeAtaque = alcanceDeAtaque;
+    }
+    public void setPontosDeVida(int pontosDeVida){
+        this.pontosDeVida = Math.max(0, pontosDeVida);
+        if (this.pontosDeVida == 0){
+            morto = true;
+        }
     }
     public void setPosicao(int x, int y){
         if (this.x != x)
@@ -113,16 +119,32 @@ public class Personagem {
     }
     //#endregion
     //#region ações do personagem
+    public void atacar(Personagem personagem){
+        if (distanciaEntre(personagem) <= getAlcanceDeAtaque()) {
+            personagem.tomarDano(getForcaDeAtaque());
+        }
+        else
+            System.out.println("O ataque falhou devido à distância do inimigo");
+    }
     public void defender(){
+        System.out.println("A defesa do personagem foi restaurada para " + getForcaDeDefesaPadrao());
         setForcaDeDefesa(getForcaDeDefesaPadrao());
     }
     public void mover(int x, int y){
+        System.out.println("O personagem se moverá para (" + x + ", " + y + ")");
         setPosicao(x, y);
     }
+    public void tomarDano(int ataque){
+        int danoResultante = Math.max(0, ataque - forcaDeDefesa);
+        System.out.println("O ataque causou " + danoResultante + " de dano no inimigo");
+        setForcaDeDefesa(getForcaDeDefesa() - ataque);
+        setPontosDeVida(getPontosDeVida() - danoResultante);
+    }
+    //#endregion
+    //#region métodos úteis
     public boolean estaNaPosicao(int x, int y){
         return this.x == x && this.y == y;
     }
-    //#endregion
     public int distanciaEntre(Personagem personagem){
         return Math.max(Math.abs(y - personagem.y), Math.abs(x - personagem.x));
     }
@@ -130,4 +152,5 @@ public class Personagem {
         System.out.println(nome + " (" + aparencia + "): " + pontosDeVida + "/100 PV");
         
     }
+    //#endregion
 }

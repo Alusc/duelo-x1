@@ -7,6 +7,7 @@ import java.util.Random;
 
 
 public class Jogo {
+    
     private static final int larguraDoTabuleiro = 10;
     private static final int alturaDoTabuleiro = 10;
     private static int numeroDeClasses = Personagem.Classe.values().length;
@@ -26,7 +27,7 @@ public class Jogo {
             menuPrincipal();
             loopDeJogo();
             System.out.println("Deseja jogar novamente? (Digite \"s\" para confirmar)");
-            scanner.nextLine();
+            // scanner.nextLine();
             jogarNovamente = scanner.nextLine().toLowerCase();
             
         } while (!jogarNovamente.isEmpty() && jogarNovamente.charAt(0) == 's');
@@ -114,26 +115,35 @@ public class Jogo {
             case 1:
                 realizarMovimento(personagem);
             break;
-        
+            case 2:
+                realizarAtaque(personagem);
+            break;
+            case 3:
+                realizarDefesa(personagem);
+            break;
             default:
             break;
         }
+        System.out.println("Pressione enter para continuar...");
+        // scanner.nextLine();
+        String entrada = scanner.nextLine();
     }
     public static void realizarMovimento(Personagem personagem){
         System.out.println("Para onde deseja mover?\n| Cima(W) | Baixo(S) | Esquerda(A) | Direita(D) |");
+        
         scanner.nextLine();
         
         int destinoX;
         int destinoY;
         
-        boolean charactereInvalido;
+        boolean caractereInvalido;
 
         do {
             String entrada = scanner.nextLine().toLowerCase();
             char where = entrada.isEmpty() ? '\0': entrada.charAt(0);
             destinoX = personagem.getX();
             destinoY = personagem.getY();
-            charactereInvalido = false;
+            caractereInvalido = false;
 
             switch (where) {
                 case 'w':
@@ -150,10 +160,10 @@ public class Jogo {
                 break;
                 default:
                     System.out.println("Caractere inválido");
-                    charactereInvalido = true;
+                    caractereInvalido = true;
                 break;
             }
-        } while (charactereInvalido || !validarMovimento(destinoX, destinoY, personagem));
+        } while (caractereInvalido || !validarMovimento(destinoX, destinoY, personagem));
 
         personagem.mover(destinoX, destinoY);
     }
@@ -168,6 +178,17 @@ public class Jogo {
         }
         return true; 
     }
+    public static void realizarAtaque(Personagem personagem){
+        Personagem alvo = (personagem == personagens[0]) ? personagens[1] : personagens[0];
+        personagem.atacar(alvo);
+        scanner.nextLine();
+    }
+    public static void realizarDefesa(Personagem personagem){
+        personagem.defender();
+        scanner.nextLine();
+    }
+
+
     //#endregion
     //#region multiplayer
     private static boolean multiplayer = false; // Variável que define se o jogo vai ter 2 players
