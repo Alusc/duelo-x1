@@ -9,6 +9,7 @@ public class Personagem {
     private int forcaDeDefesa = 1;
     private int alcanceDeAtaque = 1;
     private int pontosDeVida = 100;
+    private boolean usouPoderEspecial = false;
     private boolean morto = false;
 
     public static enum Classe {Guerreiro, Arqueiro, Mago};
@@ -144,6 +145,32 @@ public class Personagem {
         System.out.println("O ataque causou " + danoResultante + " de dano no " + nome);
         setForcaDeDefesa(forcaDeDefesa - ataque);
         setPontosDeVida(pontosDeVida - danoResultante);
+    }
+    public void ativarPoderEspecial(Personagem alvo){
+        if (usouPoderEspecial){
+            System.out.println("O " + nome + " já usou seu poder especial na partida");
+            return;
+        }
+        usouPoderEspecial = true;
+        switch (classe) {
+            case Guerreiro:
+                System.out.println("A força de ataque do " + nome + " dobrou para 30");
+                setForcaDeAtaque(30);    
+            break;
+            case Arqueiro:
+                System.out.println("O alcance de ataque do " + nome + " subiu para 8");
+                setAlcanceDeAtaque(8);
+            break;
+            case Mago:
+                System.out.println("Os pontos de vida dos personagens foram trocados");
+                int temp = alvo.pontosDeVida;
+                alvo.setPontosDeVida(pontosDeVida);
+                setPontosDeVida(temp);
+            break;
+            default:
+            break;
+        }
+
     }
     //#endregion
     //#region métodos úteis

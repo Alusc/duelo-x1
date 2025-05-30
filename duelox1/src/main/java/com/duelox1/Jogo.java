@@ -23,6 +23,8 @@ public class Jogo {
             limparConsole();
             menuPrincipal();
             loopDeJogo();
+            System.out.println("Jogo finalizado");
+            revelarVencedor();
             System.out.println("Deseja jogar novamente? (Digite \"s\" para confirmar)");
             //scanner.nextLine();
             jogarNovamente = scanner.nextLine().toLowerCase();
@@ -63,10 +65,14 @@ public class Jogo {
         do {
             atualizarEstadoDoJogo();
             lidarComEntradaDeAcao(0);
+            if (jogoEncerrado)
+                break;
             if (isMultiplayer()){
                 atualizarEstadoDoJogo();
                 lidarComEntradaDeAcao(1);
             }
+            if (jogoEncerrado)
+                break;
             proximoTurno();
         } while (entradaDeAcao != 5 && !jogoEncerrado);
     }
@@ -80,9 +86,7 @@ public class Jogo {
     //#endregion
     //#region estado de jogo
     private static boolean jogoEncerrado = false;
-    public static boolean jogoEstaEncerrado(){
-        return jogoEncerrado;
-    }
+    private static int vencedor = 0; 
     public static void encerrarJogo(){
         if (!jogoEncerrado)
             jogoEncerrado = true;
@@ -91,6 +95,22 @@ public class Jogo {
         if (jogoEncerrado) {
             jogoEncerrado = false;
             turno = 1;
+            vencedor = 0;
+        }
+    }
+    public static void checarCondicaoDeVitoria(){
+        if (personagens[0].isMorto()){
+            vencedor = 2;
+            encerrarJogo();
+        }
+        else if (personagens[1].isMorto()){
+            vencedor = 1;
+            encerrarJogo();
+        }
+    }
+    public static void revelarVencedor(){
+        if (vencedor != 0){
+            System.out.println("O Jogador " + vencedor + " venceu! Parabéns!");
         }
     }
     //#endregion
@@ -99,7 +119,7 @@ public class Jogo {
     public static void lidarComEntradaDeAcao(int n){
         //Esse método ser para lidar com entradas de ação somente de players humanos
 
-        if (jogoEstaEncerrado())
+        if (jogoEncerrado)
             return;
 
         System.out.println("---------------------\nÉ a vez do Jogador " + (n + 1) + "\n---------------------");
@@ -124,6 +144,9 @@ public class Jogo {
             case 3:
                 realizarDefesa(personagem);
             break;
+            case 4:
+                realizarAtivacaoDoPoderEspecial(personagem);
+            break;
             case 5:
                 System.out.println("Jogo Encerrado");
                 scanner.nextLine();
@@ -134,6 +157,7 @@ public class Jogo {
         }
         System.out.println("Pressione enter para continuar...");
         String entrada = scanner.nextLine();
+        checarCondicaoDeVitoria();
     }
     public static void realizarMovimento(Personagem personagem){
         System.out.println("Para onde deseja mover?\n| Cima(W) | Baixo(S) | Esquerda(A) | Direita(D) |");
@@ -192,6 +216,12 @@ public class Jogo {
     }
     public static void realizarDefesa(Personagem personagem){
         personagem.defender();
+        scanner.nextLine();
+    }
+
+    public static void realizarAtivacaoDoPoderEspecial(Personagem personagem){
+        Personagem alvo = (personagem == personagens[0]) ? personagens[1] : personagens[0];
+        personagem.ativarPoderEspecial(alvo);
         scanner.nextLine();
     }
 
