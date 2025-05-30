@@ -148,8 +148,6 @@ public class Jogo {
                 realizarAtivacaoDoPoderEspecial(personagem);
             break;
             case 5:
-                System.out.println("Jogo Encerrado");
-                scanner.nextLine();
                 encerrarJogo();
             return;
             default:
