@@ -114,6 +114,9 @@ public class Personagem {
     public int getPontosDeVida(){
         return pontosDeVida;
     }
+    public Classe getClasse(){
+        return classe;
+    }
     public int getX() {
         return x;
     }
@@ -122,6 +125,9 @@ public class Personagem {
     }
     public boolean isMorto(){
         return morto;
+    }
+    public boolean usouPoderEspecial(){
+        return usouPoderEspecial;
     }
     //#endregion
     //#region ações do personagem
@@ -154,7 +160,7 @@ public class Personagem {
         usouPoderEspecial = true;
         switch (classe) {
             case Guerreiro:
-                System.out.println("A força de ataque do " + nome + " dobrou para 30");
+                System.out.println("A força de ataque do " + nome + " dobrou para 32");
                 setForcaDeAtaque(32);    
             break;
             case Arqueiro:

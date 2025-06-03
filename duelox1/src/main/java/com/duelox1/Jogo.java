@@ -2,6 +2,7 @@ package duelox1.src.main.java.com.duelox1;
 import java.util.Scanner;
 
 import duelox1.src.main.java.com.duelox1.Personagem.Personagem;
+import duelox1.src.main.java.com.duelox1.Adversario.AdversarioVirtual;
 
 import java.util.Random;
 
@@ -11,6 +12,8 @@ public class Jogo {
     private static final int larguraDoTabuleiro = 10;
     private static final int alturaDoTabuleiro = 10;
     private static int numeroDeClasses = Personagem.Classe.values().length;
+
+    private static AdversarioVirtual adversarioVirtual;//= new AdversarioVirtual();    
     //#region main
 
     public static Scanner scanner = new Scanner(System.in);
@@ -41,14 +44,12 @@ public class Jogo {
         limparConsole();
         
         criarPersonagem(0);
-        if (!isMultiplayer()){
-            Random r = new Random();
-            //A I.A. vai escolher uma classe aleatória
-            personagens[1] = new Personagem(Personagem.Classe.values()[r.nextInt(numeroDeClasses)]);
-        }
-        else {
+        if (isMultiplayer()){
             limparConsole();
             criarPersonagem(1);
+        }
+        else {
+            criarPersonagemDaIa();
         }
         
 
@@ -67,9 +68,13 @@ public class Jogo {
             lidarComEntradaDeAcao(0);
             if (jogoEncerrado)
                 break;
+            
+            atualizarEstadoDoJogo();
             if (isMultiplayer()){
-                atualizarEstadoDoJogo();
                 lidarComEntradaDeAcao(1);
+            }
+            else {
+                lidarComEntradaDeAcaoDaIa();
             }
             if (jogoEncerrado)
                 break;
@@ -110,14 +115,15 @@ public class Jogo {
     }
     public static void revelarVencedor(){
         if (vencedor != 0){
-            System.out.println("O Jogador " + vencedor + " venceu! Parabéns!");
+            System.out.println("O Jogador " + vencedor + " venceu! Parabéns!\n");
         }
     }
     //#endregion
     //#region ações
     private static int entradaDeAcao;
+    private static boolean entradaDeAcaoHumana = true;
     public static void lidarComEntradaDeAcao(int n){
-        //Esse método ser para lidar com entradas de ação somente de players humanos
+        //Esse método serve para lidar com entradas de ação somente de players humanos
 
         if (jogoEncerrado)
             return;
@@ -130,7 +136,23 @@ public class Jogo {
             scanner.nextLine();
             entradaDeAcao = scanner.hasNextInt() ? scanner.nextInt() : 0;
         }
+        entradaDeAcaoHumana = true;
         realizarAcao(personagens[n], entradaDeAcao);
+    }
+
+    public static void lidarComEntradaDeAcaoDaIa(){
+        
+        if (jogoEncerrado)
+            return;
+
+        
+        System.out.println("---------------------\nÉ a vez do Jogador 2\n---------------------");
+        
+        int acao = adversarioVirtual.acaoMaisProvavel();
+        System.out.println("Seu adversário escolheu " + adversarioVirtual.textoDeAcaoMaisProvavel(acao) + "...");
+        
+        entradaDeAcaoHumana = false;
+        realizarAcao(personagens[1], acao);
     }
 
     public static void realizarAcao(Personagem personagem, int acao){
@@ -149,18 +171,21 @@ public class Jogo {
             break;
             case 5:
                 encerrarJogo();
+                scanner.nextLine();
             return;
             default:
             break;
         }
         System.out.println("Pressione enter para continuar...");
-        String entrada = scanner.nextLine();
+        scanner.nextLine();
         checarCondicaoDeVitoria();
     }
     public static void realizarMovimento(Personagem personagem){
-        System.out.println("Para onde deseja mover?\n| Cima(W) | Baixo(S) | Esquerda(A) | Direita(D) |");
-        
-        scanner.nextLine();
+        if (entradaDeAcaoHumana) {
+            System.out.println("Para onde deseja mover?\n| Cima(W) | Baixo(S) | Esquerda(A) | Direita(D) |");
+            
+            scanner.nextLine();
+        }
         
         int destinoX;
         int destinoY;
@@ -168,7 +193,13 @@ public class Jogo {
         boolean caractereInvalido;
 
         do {
-            String entrada = scanner.nextLine().toLowerCase();
+            String entrada;
+            if (entradaDeAcaoHumana)
+                entrada = scanner.nextLine().toLowerCase();
+            else {
+                entrada = adversarioVirtual.direcaoMaisProvavel();
+            }
+            
             char where = entrada.isEmpty() ? '\0': entrada.charAt(0);
             destinoX = personagem.getX();
             destinoY = personagem.getY();
@@ -210,17 +241,20 @@ public class Jogo {
     public static void realizarAtaque(Personagem personagem){
         Personagem alvo = (personagem == personagens[0]) ? personagens[1] : personagens[0];
         personagem.atacar(alvo);
-        scanner.nextLine();
+        if (entradaDeAcaoHumana)
+            scanner.nextLine();
     }
     public static void realizarDefesa(Personagem personagem){
         personagem.defender();
-        scanner.nextLine();
+        if (entradaDeAcaoHumana)
+            scanner.nextLine();
     }
 
     public static void realizarAtivacaoDoPoderEspecial(Personagem personagem){
         Personagem alvo = (personagem == personagens[0]) ? personagens[1] : personagens[0];
         personagem.ativarPoderEspecial(alvo);
-        scanner.nextLine();
+        if (entradaDeAcaoHumana)
+            scanner.nextLine();
     }
 
 
@@ -277,11 +311,34 @@ public class Jogo {
         personagens[n].adicionarNome(nome);
        
     }
+
+    public static void criarPersonagemDaIa(){
+        if (adversarioVirtual == null)
+            adversarioVirtual = new AdversarioVirtual();
+        else
+            adversarioVirtual.setPersonagem();
+        personagens[1] = adversarioVirtual.getPersonagem(); 
+        adversarioVirtual.setPersonagemDoHumano(personagens[0]);
+    }
     
     public static void aleatorizarPosicoes(){
         Random a = new Random();
-        personagens[0].setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
-        personagens[1].setPosicao(a.nextInt(larguraDoTabuleiro - 1), a.nextInt(alturaDoTabuleiro - 1));
+        int x1 = a.nextInt(larguraDoTabuleiro - 1);
+        int y1 = a.nextInt(alturaDoTabuleiro - 1);
+
+        int x2 = a.nextInt(larguraDoTabuleiro - 1);
+        int y2 = a.nextInt(alturaDoTabuleiro - 1);
+    
+        //Impede que os personagens nasçam na mesma posição
+        if (x2 == x1 && y2 == y1){
+            x2++;
+            if (x2 == larguraDoTabuleiro){
+                x2 = 0;
+            }
+        }
+
+        personagens[0].setPosicao(x1, y1);
+        personagens[1].setPosicao(x2, y2);
     }
     //#endregion
     //#region prints na tela
