@@ -116,7 +116,7 @@ public class AdversarioVirtual {
             return 1;
         }
 
-        if (personagem.getPontosDeVida() <= 20){
+        if (personagem.getPontosDeVida() <= personagemDoHumano.getForcaDeAtaque()){
             if (!personagem.usouPoderEspecial())
                 return 4;
             if (personagem.getForcaDeDefesa() == 0)

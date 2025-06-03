@@ -11,9 +11,12 @@ public class Jogo {
     
     private static final int larguraDoTabuleiro = 10;
     private static final int alturaDoTabuleiro = 10;
+
+    private static final int limiteDeTurnos = 30;
+
     private static int numeroDeClasses = Personagem.Classe.values().length;
 
-    private static AdversarioVirtual adversarioVirtual;//= new AdversarioVirtual();    
+    private static AdversarioVirtual adversarioVirtual;  
     //#region main
 
     public static Scanner scanner = new Scanner(System.in);
@@ -29,7 +32,6 @@ public class Jogo {
             System.out.println("Jogo finalizado");
             revelarVencedor();
             System.out.println("Deseja jogar novamente? (Digite \"s\" para confirmar)");
-            //scanner.nextLine();
             jogarNovamente = scanner.nextLine().toLowerCase();
             
         } while (!jogarNovamente.isEmpty() && jogarNovamente.charAt(0) == 's');
@@ -87,6 +89,7 @@ public class Jogo {
     private static int turno = 1; // Variável para controlar o turno do jogo
     public static void proximoTurno(){
         turno++;
+        checarCondicaoDeVitoriaPorLimiteDeTurnos();
     }
     //#endregion
     //#region estado de jogo
@@ -113,9 +116,27 @@ public class Jogo {
             encerrarJogo();
         }
     }
+    public static void checarCondicaoDeVitoriaPorLimiteDeTurnos(){
+        if (turno >= limiteDeTurnos + 1) {
+            checarCondicaoDeVitoriaPorMaiorVida();
+            encerrarJogo();
+        }
+    }
+    public static void checarCondicaoDeVitoriaPorMaiorVida(){
+        if (personagens[0].getPontosDeVida() > personagens[1].getPontosDeVida()){
+            vencedor = 1;
+        }
+        else if (personagens[1].getPontosDeVida() > personagens[0].getPontosDeVida()){
+            vencedor = 2;
+        }
+    }
+
     public static void revelarVencedor(){
         if (vencedor != 0){
             System.out.println("O Jogador " + vencedor + " venceu! Parabéns!\n");
+        }
+        else {
+            System.out.println("Ninguém venceu\n");
         }
     }
     //#endregion
@@ -170,6 +191,7 @@ public class Jogo {
                 realizarAtivacaoDoPoderEspecial(personagem);
             break;
             case 5:
+                checarCondicaoDeVitoriaPorMaiorVida();
                 encerrarJogo();
                 scanner.nextLine();
             return;
@@ -376,7 +398,7 @@ public class Jogo {
         }
     }
     public static void printarTurno(){
-        System.out.println("Turno: " + turno);
+        System.out.println(turno == limiteDeTurnos ? "Turno final" : "Turno: " + turno);
     }
     public static void printarInformacoesDosPersonagens(){
         personagens[0].printarInformacoes();

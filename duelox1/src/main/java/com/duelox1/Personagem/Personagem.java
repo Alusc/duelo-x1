@@ -24,17 +24,17 @@ public class Personagem {
             case Guerreiro:
                 setNome("Guerreiro");
                 setAparencia('G');
-                setAtributos(16, 10, 1);
+                setAtributos(15, 10, 1);
             break;
             case Arqueiro:
                 setNome("Arqueiro");
                 setAparencia('A');
-                setAtributos(12, 5, 5);
+                setAtributos(12, 6, 5);
             break;
             case Mago:
                 setNome("Mago");
                 setAparencia('M');
-                setAtributos(14, 7, 3);
+                setAtributos(14, 8, 3);
             break;
             default:
             break;
@@ -160,8 +160,8 @@ public class Personagem {
         usouPoderEspecial = true;
         switch (classe) {
             case Guerreiro:
-                System.out.println("A força de ataque do " + nome + " dobrou para 32");
-                setForcaDeAtaque(32);    
+                System.out.println("A força de ataque do " + nome + " dobrou para 30");
+                setForcaDeAtaque(30);    
             break;
             case Arqueiro:
                 System.out.println("O alcance de ataque do " + nome + " subiu para 8");
@@ -188,7 +188,6 @@ public class Personagem {
     }
     public void printarInformacoes(){
         System.out.println(nome + " (" + aparencia + "): " + pontosDeVida + "/100 PV | " + forcaDeDefesa + "/" + forcaDeDefesaPadrao + " FD");
-        
     }
     //#endregion
 }
