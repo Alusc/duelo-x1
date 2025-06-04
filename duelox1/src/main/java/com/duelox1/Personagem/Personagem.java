@@ -82,6 +82,7 @@ public class Personagem {
     public void setPontosDeVida(int pontosDeVida){
         this.pontosDeVida = Math.max(0, pontosDeVida);
         if (this.pontosDeVida == 0){
+            System.out.println("O " + nome + " foi derrotado!");
             morto = true;
         }
     }

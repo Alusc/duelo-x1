@@ -38,7 +38,8 @@ public class Jogo {
     }
     //#region jogo
     public static void menuPrincipal(){
-        
+        //Esse é o menu principal do jogo, onde o player ou os players vão escolher se o jogo vai ser e dois e também
+        //os atributos e classes dos personagens
         System.out.println("Bem vindo ao Duelo X1");
         System.out.println("Selecione o modo de jogo:\n| 0: Singleplayer | 1: Multiplayer |");
        
@@ -63,14 +64,17 @@ public class Jogo {
     }
 
     public static void loopDeJogo(){
+        //Esse é o loop de jogo. Método no qual o jogo de fato irá rodar, até que a variável jogoEncerrado seja verdadeira
         
         aleatorizarPosicoes();
         do {
             atualizarEstadoDoJogo();
             lidarComEntradaDeAcao(0);
+
+            //É necessário fazer essas checagens no meio do loop pois o jogo pode acabar logo após a entrada de ação
+            //de cada player e para isso o loop tem que ser interrompido antes do próximo método ser lido
             if (jogoEncerrado)
                 break;
-            
             atualizarEstadoDoJogo();
             if (isMultiplayer()){
                 lidarComEntradaDeAcao(1);
@@ -81,7 +85,7 @@ public class Jogo {
             if (jogoEncerrado)
                 break;
             proximoTurno();
-        } while (entradaDeAcao != 5 && !jogoEncerrado);
+        } while (!jogoEncerrado);
     }
     //#endregion
 
@@ -133,11 +137,12 @@ public class Jogo {
 
     public static void revelarVencedor(){
         if (vencedor != 0){
-            System.out.println("O Jogador " + vencedor + " venceu! Parabéns!\n");
+            System.out.println("O Jogador " + vencedor + " venceu! Parabéns!");
         }
         else {
-            System.out.println("Ninguém venceu\n");
+            System.out.println("O jogo terminou em empate!");
         }
+        System.out.println();
     }
     //#endregion
     //#region ações
@@ -166,7 +171,6 @@ public class Jogo {
         if (jogoEncerrado)
             return;
 
-        
         System.out.println("---------------------\nÉ a vez do Jogador 2\n---------------------");
         
         int acao = adversarioVirtual.acaoMaisProvavel();

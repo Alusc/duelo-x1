@@ -3,18 +3,21 @@ import java.util.Random;
 import duelox1.src.main.java.com.duelox1.Personagem.Personagem;
 
 public class AdversarioVirtual {
-    private Personagem personagem;
-    private Personagem personagemDoHumano;
-    Random numeroAleatorio = new Random();
+    
+    private Random numeroAleatorio = new Random();
     public AdversarioVirtual() {
         setPersonagem();
     }
 
     private boolean fugir;
 
+    //#region personagem
+    private Personagem personagem;
+    private Personagem personagemDoHumano;
     public void setPersonagem(){
         //A I.A. vai escolher uma classe aleatória para seu personagem
-        fugir = false;
+        if (fugir)
+            fugir = false;
         int numeroDeClasses = Personagem.Classe.values().length;
         personagem = new Personagem(Personagem.Classe.values()[numeroAleatorio.nextInt(numeroDeClasses)]);
     }
@@ -26,7 +29,9 @@ public class AdversarioVirtual {
     public Personagem getPersonagem() {
         return personagem;
     }
+    //#endregion
 
+    //#region lógica da I.A.
     public int acaoMaisProvavel() {
         if (personagem == null)
             return -1;
@@ -143,6 +148,7 @@ public class AdversarioVirtual {
         float direcaoVertical = Math.signum((float)personagemDoHumano.getY() - personagem.getY());
         
         if (fugir){
+            //Ele vai para direção oposta ao oponente quando estiver fugindo
             direcaoHorizontal *= -1;
             direcaoVertical *= -1;
         }
@@ -157,12 +163,13 @@ public class AdversarioVirtual {
         if (direcaoVertical == 1 && personagem.getY() < 9)
             return "s";
 
+        //Isso não faz muito sentido, mas é o que tem pra hoje
         if (personagem.getY() > 4){
-            if (personagemDoHumano.getY() == personagem.getY() + 1)
+            if (personagemDoHumano.getY() == personagem.getY() - 1)
                 return personagem.getX() < 9 ? "d" : "a";
             return "w";
         }
-        if (personagemDoHumano.getY() == personagem.getY() - 1)
+        if (personagemDoHumano.getY() == personagem.getY() + 1)
             return personagem.getX() < 9 ? "d" : "a";
         return "s";
         
@@ -184,4 +191,5 @@ public class AdversarioVirtual {
                 return "";
         }
     }
+    //#endregion
 }
