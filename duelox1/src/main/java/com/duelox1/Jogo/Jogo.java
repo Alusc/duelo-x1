@@ -1,26 +1,40 @@
-package duelox1.src.main.java.com.duelox1;
+package com.duelox1.Jogo;
 import java.util.Scanner;
 
-import duelox1.src.main.java.com.duelox1.Personagem.Personagem;
-import duelox1.src.main.java.com.duelox1.Adversario.AdversarioVirtual;
+import com.duelox1.Personagem.Personagem;
+import com.duelox1.Adversario.AdversarioVirtual;
 
 import java.util.Random;
 
 
 public class Jogo {
-    
     private static final int larguraDoTabuleiro = 10;
     private static final int alturaDoTabuleiro = 10;
 
     private static final int limiteDeTurnos = 30;
-
+    
     private static int numeroDeClasses = Personagem.Classe.values().length;
+    
+    private static AdversarioVirtual adversarioVirtual; 
+    
+    public static Scanner scanner = new Scanner(System.in);
 
-    private static AdversarioVirtual adversarioVirtual;  
+    private static int turno = 1; // Variável para controlar o turno do jogo
+    
+    private static boolean jogoEncerrado = false;
+    private static int vencedor = 0; 
+    
+    private static int entradaDeAcao;
+    private static boolean entradaDeAcaoHumana = true;
+    
+    
+    private static boolean multiplayer = false; // Variável que define se o jogo vai ter 2 players
+
+    private static Personagem[] personagens = new Personagem[2];
+
+
     //#region main
 
-    public static Scanner scanner = new Scanner(System.in);
-    
     public static void main(String[] args) {
         
         String jogarNovamente;
@@ -90,15 +104,12 @@ public class Jogo {
     //#endregion
 
     //#region turno
-    private static int turno = 1; // Variável para controlar o turno do jogo
     public static void proximoTurno(){
         turno++;
         checarCondicaoDeVitoriaPorLimiteDeTurnos();
     }
     //#endregion
     //#region estado de jogo
-    private static boolean jogoEncerrado = false;
-    private static int vencedor = 0; 
     public static void encerrarJogo(){
         if (!jogoEncerrado)
             jogoEncerrado = true;
@@ -146,11 +157,9 @@ public class Jogo {
     }
     //#endregion
     //#region ações
-    private static int entradaDeAcao;
-    private static boolean entradaDeAcaoHumana = true;
+    
     public static void lidarComEntradaDeAcao(int n){
         //Esse método serve para lidar com entradas de ação somente de players humanos
-
         if (jogoEncerrado)
             return;
 
@@ -275,7 +284,6 @@ public class Jogo {
         if (entradaDeAcaoHumana)
             scanner.nextLine();
     }
-
     public static void realizarAtivacaoDoPoderEspecial(Personagem personagem){
         Personagem alvo = (personagem == personagens[0]) ? personagens[1] : personagens[0];
         personagem.ativarPoderEspecial(alvo);
@@ -283,10 +291,8 @@ public class Jogo {
             scanner.nextLine();
     }
 
-
     //#endregion
     //#region multiplayer
-    private static boolean multiplayer = false; // Variável que define se o jogo vai ter 2 players
     public static void setMultiplayer(boolean value){
         multiplayer = value;
     }
@@ -295,15 +301,7 @@ public class Jogo {
     }
     //#endregion 
     //#region personagens
-    private static Personagem[] personagens = new Personagem[2];
-
-    // public static void anularPersonagens(){
-    //     for (Personagem personagem: personagens){
-    //         if (personagem != null)
-    //             personagem = null;
-    //     }
-    // }
-
+    
     public static void criarPersonagem(int n) {
         //Esse método serve para quando um player humano vai criar um personagem
 

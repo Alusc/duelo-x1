@@ -1,6 +1,6 @@
-package duelox1.src.main.java.com.duelox1.Adversario;
+package com.duelox1.Adversario;
 import java.util.Random;
-import duelox1.src.main.java.com.duelox1.Personagem.Personagem;
+import com.duelox1.Personagem.Personagem;
 
 public class AdversarioVirtual {
     
@@ -25,7 +25,6 @@ public class AdversarioVirtual {
         this.personagemDoHumano = personagemDoHumano;
     }
 
-    
     public Personagem getPersonagem() {
         return personagem;
     }
@@ -108,8 +107,6 @@ public class AdversarioVirtual {
 
     }
     private int acaoMaisProvavelMago(){
-
-        
         int distanciaEntrePersonagens = personagem.distanciaEntre(personagemDoHumano);
 
 
@@ -172,7 +169,6 @@ public class AdversarioVirtual {
         if (personagemDoHumano.getY() == personagem.getY() + 1)
             return personagem.getX() < 9 ? "d" : "a";
         return "s";
-        
         
     }
 

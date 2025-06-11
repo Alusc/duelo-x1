@@ -1,4 +1,4 @@
-package duelox1.src.main.java.com.duelox1.Personagem;
+package com.duelox1.Personagem;
 
 public class Personagem {
     private String nome = "Ninguém";
