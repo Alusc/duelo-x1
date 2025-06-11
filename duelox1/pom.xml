@@ -14,7 +14,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <exec.mainClass>duelox1.src.main.java.com.duelox1.Jogo</exec.mainClass> 
+        <exec.mainClass>com.duelox1.Jogo.Jogo</exec.mainClass> 
     </properties>
 
    
@@ -38,7 +38,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>duelox1.src.main.java.com.duelox1.Jogo</mainClass> 
+                            <mainClass>com.duelox1.Jogo.Jogo</mainClass> 
                         </manifest>
                     </archive>
                 </configuration>

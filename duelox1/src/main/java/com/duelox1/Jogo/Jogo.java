@@ -84,7 +84,6 @@ public class Jogo {
         do {
             atualizarEstadoDoJogo();
             lidarComEntradaDeAcao(0);
-
             //É necessário fazer essas checagens no meio do loop pois o jogo pode acabar logo após a entrada de ação
             //de cada player e para isso o loop tem que ser interrompido antes do próximo método ser lido
             if (jogoEncerrado)
